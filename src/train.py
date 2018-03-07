@@ -51,11 +51,11 @@ model = get_model(wordEmbeddings,caseEmbeddings,char_index, label_index)
 
 epochs = 50
 for epoch in range(epochs):
-    print("Epoch %d/%d"%(epoch,epochs))
+    print("Epoch %d/%d"%(epoch, epochs))
     a = Progbar(len(train_batch_len))
-    for i,batch in enumerate(iterate_mini_batches(train_batch,train_batch_len)):
-        labels, tokens, casing,char = batch
-        model.train_on_batch([tokens, casing,char], labels)
+    for i, batch in enumerate(iterate_mini_batches(train_batch,train_batch_len)):
+        labels, tokens, casing, char = batch
+        model.train_on_batch([tokens, casing, char], labels)
         a.update(i)
         print(' ')
 
