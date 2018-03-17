@@ -59,9 +59,9 @@ for epoch in range(epochs):
 #   Performance on dev dataset
 predLabels, correctLabels = tag_dataset(dev_batch)
 pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
-print("Dev-Data: Prec: %.3f, Rec: %.3f, F1: %.3f" % (pre_dev, rec_dev, f1_dev))
+print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_batch)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
-print("Test-Data: Prec: %.3f, Rec: %.3f, F1: %.3f" % (pre_test, rec_test, f1_test))
+print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))
