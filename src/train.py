@@ -15,7 +15,7 @@ def tag_dataset(dataset):
         tokens = np.asarray([tokens])
         casing = np.asarray([casing])
         char = np.asarray([char])
-        pred = model.predict([tokens, casing,char], verbose=False)[0]
+        pred = model.predict([tokens, casing, char], verbose=False)[0]
         pred = pred.argmax(axis=-1)  # Predict the classes
         correctLabels.append(labels)
         predLabels.append(pred)
