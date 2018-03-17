@@ -4,7 +4,7 @@ import numpy as np
 def get_word_embedding(words):
     word_index = {}
     word_embeddings = []
-    embeddings = open("glove.6B.100d.txt", encoding="utf-8")
+    embeddings = open("../embedding/glove.6B.100d.txt", encoding="utf-8")
 
     for line in embeddings:
         split = line.strip().split(" ")

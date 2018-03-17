@@ -23,9 +23,9 @@ def tag_dataset(dataset):
     return predLabels, correctLabels
 
 
-train = readfile("data/train.txt")
-validation = readfile("data/valid.txt")
-test = readfile("data/test.txt")
+train = readfile("../data/train.txt")
+validation = readfile("../data/valid.txt")
+test = readfile("../data/test.txt")
 
 train = add_chars(train)
 validation = add_chars(validation)
@@ -39,7 +39,7 @@ char_index = get_char_index_matrix()
 
 train_set = padding(create_matrices(train, word_index,  label_index, case_index, char_index))
 validation_set = padding(create_matrices(validation, word_index, label_index, case_index, char_index))
-test_set = padding(create_matrices(test, word_index, label_index, case_index))
+test_set = padding(create_matrices(test, word_index, label_index, case_index, char_index))
 
 idx2Label = {v: k for k, v in label_index.items()}
 
@@ -47,17 +47,14 @@ train_batch, train_batch_len = create_batches(train_set)
 dev_batch, dev_batch_len = create_batches(validation_set)
 test_batch, test_batch_len = create_batches(test_set)
 
-model = get_model(wordEmbeddings,caseEmbeddings,char_index, label_index)
+model = get_model(wordEmbeddings, caseEmbeddings, char_index, label_index)
 
 epochs = 50
 for epoch in range(epochs):
     print("Epoch %d/%d"%(epoch, epochs))
-    a = Progbar(len(train_batch_len))
-    for i, batch in enumerate(iterate_mini_batches(train_batch,train_batch_len)):
+    for i, batch in enumerate(iterate_mini_batches(train_batch, train_batch_len)):
         labels, tokens, casing, char = batch
         model.train_on_batch([tokens, casing, char], labels)
-        a.update(i)
-        print(' ')
 
 #   Performance on dev dataset
 predLabels, correctLabels = tag_dataset(dev_batch)
