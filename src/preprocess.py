@@ -18,7 +18,7 @@ def readfile(filename):
                 sentence = []
             continue
         splits = line.split(' ')
-        sentence.append([splits[0], splits[-1]])
+        sentence.append([splits[0], splits[1], splits[-1]])
 
     if len(sentence) > 0:
         sentences.append(sentence)
@@ -29,7 +29,7 @@ def add_chars(sentences):
     for sentence_index, sentence in enumerate(sentences):
         for word_index, word_info in enumerate(sentence):
             chars = [c for c in word_info[0]]
-            sentences[sentence_index][word_index] = [word_info[0], chars, word_info[1]]
+            sentences[sentence_index][word_index] = [word_info[0], chars, word_info[1], word_info[2]]
     return sentences
 
 
@@ -59,7 +59,7 @@ def get_casing(word, lookup):
     return lookup[casing]
 
 
-def create_matrices(sentences, word_index, label_index, case_index, char_index):
+def create_matrices(sentences, word_index, label_index, case_index, char_index, pos_tag_index):
     unknown_index = word_index['UNKNOWN_TOKEN']
     dataset = []
 
@@ -71,8 +71,9 @@ def create_matrices(sentences, word_index, label_index, case_index, char_index):
         case_indices = []
         char_indices = []
         label_indices = []
+        pos_tag_inices = []
 
-        for word, char, label in sentence:
+        for word, char, pos_tag, label in sentence:
             word_count += 1
             if word in word_index:
                 word_idx = word_index[word]
@@ -89,8 +90,9 @@ def create_matrices(sentences, word_index, label_index, case_index, char_index):
             case_indices.append(get_casing(word, case_index))
             char_indices.append(char_idx)
             label_indices.append(label_index[label])
+            pos_tag_inices.append(pos_tag_index[pos_tag])
 
-        dataset.append([word_indices, case_indices, char_indices, label_indices])
+        dataset.append([word_indices, case_indices, char_indices, label_indices, pos_tag_inices])
 
     return dataset
 
@@ -129,26 +131,30 @@ def iterate_mini_batches(dataset, batch_len):
         tokens = []
         caseing = []
         char = []
+        pos_tag = []
         labels = []
         data = dataset[start:i]
         start = i
         for dt in data:
-            t, c, ch, l = dt
+            t, c, ch, l, pt = dt
             l = np.expand_dims(l, -1)
             tokens.append(t)
             caseing.append(c)
             char.append(ch)
             labels.append(l)
-        yield np.asarray(labels), np.asarray(tokens), np.asarray(caseing), np.asarray(char)
+            pos_tag.append(pt)
+        yield np.asarray(labels), np.asarray(tokens), np.asarray(caseing), np.asarray(char), np.asarray(pos_tag)
 
 
 def get_words_and_labels(train, val, test):
     label_set = set()
+    pos_tag_set = set()
     words = {}
 
     for dataset in [train, val, test]:
         for sentence in dataset:
-            for word, char, label in sentence:
+            for word, char, POS_tag, label in sentence:
                 label_set.add(label)
+                pos_tag_set.add(POS_tag)
                 words[word.lower()] = True
-    return words, label_set
+    return words, label_set, pos_tag_set

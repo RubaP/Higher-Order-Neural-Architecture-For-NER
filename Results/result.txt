@@ -13,3 +13,11 @@ Test-Data: Prec: 0.880, Rec: 0.895, F1: 0.888
 increasing iteration from 50 to 80
 Dev-Data: Prec: 0.928, Rec: 0.940, F1: 0.934
 Test-Data: Prec: 0.884, Rec: 0.902, F1: 0.893
+
+add POS tag as one of the feature
+Dev-Data: Prec: 0.92218, Rec: 0.93538, F1: 0.92873
+Test-Data: Prec: 0.88488, Rec: 0.90368, F1: 0.89418
+
+POS tag with 80 epochs
+Dev-Data: Prec: 0.93468, Rec: 0.93437, F1: 0.93452
+Test-Data: Prec: 0.89221, Rec: 0.89837, F1: 0.89528
