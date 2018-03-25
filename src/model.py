@@ -3,6 +3,7 @@ from keras.layers import TimeDistributed, Conv1D, Dense, Embedding, Input, Dropo
     Flatten, concatenate
 from keras.initializers import RandomUniform
 from keras.utils import plot_model
+from src.layers import ChainCRF
 
 
 def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagEmbedding):

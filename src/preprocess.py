@@ -111,14 +111,14 @@ def padding(sentences):
 def create_batches(data):
     l = []
     for i in data:
-        l.append(len(i[0]))
+        l.append(len(i[0])) #sentence length
     l = set(l)
     batches = []
     batch_len = []
     z = 0
     for i in l:
         for batch in data:
-            if len(batch[0]) == i:
+            if len(batch[0]) == i: #same length sentences are added to same batch
                 batches.append(batch)
                 z += 1
         batch_len.append(z)
