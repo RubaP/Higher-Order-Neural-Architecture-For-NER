@@ -51,7 +51,7 @@ test_batch, test_batch_len = create_batches(test_set)
 
 model = get_model(wordEmbeddings, caseEmbeddings, char_index, label_index, posTagEmbedding)
 
-epochs = 80
+epochs = 1
 for epoch in range(epochs):
     print("Epoch %d/%d"%(epoch, epochs))
     for i, batch in enumerate(iterate_mini_batches(train_batch, train_batch_len)):

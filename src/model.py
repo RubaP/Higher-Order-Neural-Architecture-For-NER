@@ -3,7 +3,7 @@ from keras.layers import TimeDistributed, Conv1D, Dense, Embedding, Input, Dropo
     Flatten, concatenate
 from keras.initializers import RandomUniform
 from keras.utils import plot_model
-from src.layers import ChainCRF
+from keras_contrib.layers import CRF
 
 
 def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagEmbedding):
@@ -32,12 +32,14 @@ def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagE
     output = concatenate([words, pos_tag, casing, char])
     output = Bidirectional(LSTM(200, return_sequences=True, dropout=0.50, recurrent_dropout=0.25))(output)
     output = TimeDistributed(Dense(len(label_index), activation='softmax'))(output)
-    
-    crf = ChainCRF()
-    output = crf(output) #not sure here
+
+    # final linear chain CRF layer
+    crf = CRF(len(label_index), sparse_target=True)
+    output = crf(output)
+
     # define the model
     model = Model(inputs=[words_input, pos_tag_input, casing_input, character_input], outputs=[output])
-    model.compile(loss=crf.sparse_loss, optimizer='nadam')
+    model.compile(loss=crf.loss_function, optimizer='adam')
     model.summary()
     plot_model(model, to_file='model.png')
     return model
