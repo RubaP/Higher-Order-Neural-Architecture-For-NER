@@ -34,7 +34,7 @@ def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagE
     output = TimeDistributed(Dense(len(label_index), activation='softmax'))(output)
     
     crf = ChainCRF()
-    output = crf(output)
+    output = crf(output) //not sure here
     # define the model
     model = Model(inputs=[words_input, pos_tag_input, casing_input, character_input], outputs=[output])
     model.compile(loss=crf.sparse_loss, optimizer='nadam')
