@@ -3,10 +3,12 @@ from keras.layers import TimeDistributed, Conv1D, Dense, Embedding, Input, Dropo
     Flatten, concatenate
 from keras.initializers import RandomUniform
 from keras.utils import plot_model
+from keras.layers.merge import Concatenate
 from src.layers import ChainCRF
+from keras_contrib.layers import CRF
 
 
-def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagEmbedding):
+def get_model(word_embeddings, case_embeddings, char_index, posTagEmbedding, batch_size):
     words_input = Input(shape=(None,), dtype='int32', name='words_input')
     words = Embedding(input_dim=word_embeddings.shape[0], output_dim=word_embeddings.shape[1],
                       weights=[word_embeddings], trainable=False)(words_input)
@@ -29,13 +31,17 @@ def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagE
     char = Dropout(0.5)(char)
 
     # Bidirectional LSTM
-    output = concatenate([words, pos_tag, casing, char])
+    output = Concatenate(axis=-1)([words, pos_tag, casing, char])
     output = Bidirectional(LSTM(200, return_sequences=True, dropout=0.50, recurrent_dropout=0.25))(output)
-    output = TimeDistributed(Dense(len(label_index), activation='softmax'))(output)
+    output = Dropout(100)(output)
+    output = Dense(10, activation='tanh')(output)
+
+    crf = CRF(10)
+    output = crf(output)
 
     # define the model
     model = Model(inputs=[words_input, pos_tag_input, casing_input, character_input], outputs=[output])
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='nadam')
+    model.compile(loss='categorical_crossentropy', optimizer='nadam')
     model.summary()
     plot_model(model, to_file='model.png')
     return model

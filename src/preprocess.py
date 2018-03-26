@@ -97,53 +97,63 @@ def create_matrices(sentences, word_index, label_index, case_index, char_index, 
     return dataset
 
 
-def padding(sentences):
-    max_len = 52
-    for sentence in sentences:
-        char = sentence[2]
-        for x in char:
-            max_len = max(max_len, len(x))
-    for i, sentence in enumerate(sentences):
-        sentences[i][2] = pad_sequences(sentences[i][2], 52, padding='post')
-    return sentences
+def padding(chars):
+    padded_chair = []
+    for i in chars:
+        padded_chair.append(pad_sequences(i, 52, padding='post'))
+    return padded_chair
 
 
-def create_batches(data):
-    l = []
-    for i in data:
-        l.append(len(i[0])) #sentence length
-    l = set(l)
-    batches = []
-    batch_len = []
-    z = 0
-    for i in l:
-        for batch in data:
-            if len(batch[0]) == i: #same length sentences are added to same batch
-                batches.append(batch)
-                z += 1
-        batch_len.append(z)
-    return batches, batch_len
+def create_batches(data, batch_size):
+    num_batches_per_epoch = int((len(data) - 1) / batch_size) + 1
+
+    def data_generator():
+        """
+        Generates a batch iterator for a dataset.
+        """
+        data_size = len(data)
+        while True:
+            for batch_num in range(num_batches_per_epoch):
+                start_index = batch_num * batch_size
+                end_index = min((batch_num + 1) * batch_size, data_size)
+                X, y = data[start_index: end_index], data[start_index: end_index]
+                yield transform(X, y)
+
+    return num_batches_per_epoch, data_generator()
 
 
-def iterate_mini_batches(dataset, batch_len):
-    start = 0
-    for i in batch_len:
-        tokens = []
-        caseing = []
-        char = []
-        pos_tag = []
-        labels = []
-        data = dataset[start:i]
-        start = i
-        for dt in data:
-            t, c, ch, l, pt = dt
-            l = np.expand_dims(l, -1)
-            tokens.append(t)
-            caseing.append(c)
-            char.append(ch)
-            labels.append(l)
-            pos_tag.append(pt)
-        yield np.asarray(labels), np.asarray(tokens), np.asarray(caseing), np.asarray(char), np.asarray(pos_tag)
+def transform(X, Y):
+    max_length_word = max(len(max(seq, key=len)) for seq in Y)
+
+    word_input = []
+    char_input = []
+    case_input = []
+    label_input = []
+    pos_tag_input = []
+
+    for word, case, char, label, pos_tag in X:
+        word_input.append(pad_sequence(word, max_length_word))
+        case_input.append(pad_sequence(case, max_length_word))
+        label_input.append(np.eye(10)[pad_sequence(label, max_length_word)])
+        pos_tag_input.append(pad_sequence(pos_tag, max_length_word))
+        char_input.append(pad_sequence(char, max_length_word, True))
+
+    #print("Word: ", np.asarray(word_input).shape)
+    #print("POS tag: ", np.asarray(pos_tag_input).shape)
+    #print("Case: ", np.asarray(case_input).shape)
+    #print("Char: ", np.asarray(padding(char_input)).shape)
+    #print("Label: ", np.asarray(label_input).shape)
+    #return [np.asarray(word_input), np.asarray(pos_tag_input), np.asarray(case_input), np.asarray(padding(char_input))], np.asarray(label_input)
+    return [np.asarray(word_input), np.asarray(padding(char_input))], np.asarray(label_input)
+
+
+def pad_sequence(seq, pad_length, isChair = False):
+    if isChair:
+        for x in range(len(seq), pad_length):
+            seq.append([])
+        return seq
+    else:
+        return np.pad(seq, (0, pad_length - len(seq)), 'constant', constant_values=(0,0))
 
 
 def get_words_and_labels(train, val, test):
