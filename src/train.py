@@ -1,4 +1,4 @@
-from src.preprocess import readfile, add_chars, create_matrices, padding, create_batches, get_words_and_labels
+from src.preprocess import readfile, add_chars, create_matrices, padding, create_batches, get_words_and_labels, transform
 from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix, get_pos_tag_embedding
 from src.model import get_model
 from src.validation import compute_f1
@@ -12,13 +12,12 @@ def tag_dataset(dataset):
     b = Progbar(len(dataset))
     for i, data in enumerate(dataset):
         tokens, casing, char, labels, pos_tag = data
-        tokens = np.asarray([tokens])
-        casing = np.asarray([casing])
-        char = np.asarray([char])
-        pos_tag = np.asarray([pos_tag])
-        pred = model.predict([tokens, pos_tag, casing, char], verbose=False)[0]
+        input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)))
+        pred = model.predict(input, verbose=False)[0]
         pred = pred.argmax(axis=-1)  # Predict the classes
-        correctLabels.append(labels)
+        output = np.squeeze(output)
+        output = np.argmax(output, axis=1)
+        correctLabels.append(output)
         predLabels.append(pred)
         b.update(i)
     return predLabels, correctLabels
@@ -47,18 +46,17 @@ batch_size =10
 model = get_model(wordEmbeddings, caseEmbeddings, char_index, posTagEmbedding, batch_size)
 
 train_steps, train_batches = create_batches(train_set, batch_size)
-dev_batch, dev_batch_len = create_batches(validation_set, batch_size)
-test_batch, test_batch_len = create_batches(test_set, batch_size)
 
 epochs = 1
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs)
 
+idx2Label = {v: k for k, v in label_index.items()}
 #   Performance on dev dataset
-predLabels, correctLabels = tag_dataset(dev_batch)
+predLabels, correctLabels = tag_dataset(validation_set)
 pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
 print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
 
 #   Performance on test dataset
-predLabels, correctLabels = tag_dataset(test_batch)
+predLabels, correctLabels = tag_dataset(test_set)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
 print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))

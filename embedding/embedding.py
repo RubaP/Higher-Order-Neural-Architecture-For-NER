@@ -29,8 +29,8 @@ def get_word_embedding(words):
 
 def get_case_embedding():
     # Hard coded case lookup
-    case_index = {'numeric': 0, 'allLower': 1, 'allUpper': 2, 'initialUpper': 3, 'other': 4, 'mainly_numeric': 5,
-                  'contains_digit': 6, 'PADDING_TOKEN': 7}
+    case_index = {'numeric': 7, 'allLower': 1, 'allUpper': 2, 'initialUpper': 3, 'other': 4, 'mainly_numeric': 5,
+                  'contains_digit': 6, 'PADDING_TOKEN': 0}
     embedding = np.identity(len(case_index), dtype='float32')
     return case_index, embedding
 
@@ -50,13 +50,13 @@ def get_char_index_matrix():
 
 
 def get_label_index_matrix(label_set):
-    label_index = {}
+    label_index = {"PAD":0}
     for label in label_set:
         label_index[label] = len(label_index)
     return label_index
 
 def get_POS_tag_index_matrix(POS_tag_set):
-    POS_tag_index = {}
+    POS_tag_index = {"PAD":0}
     for POS_tag in POS_tag_set:
         POS_tag_index[POS_tag] = len(POS_tag_index)
     return POS_tag_index

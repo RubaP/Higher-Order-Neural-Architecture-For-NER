@@ -117,15 +117,14 @@ def create_batches(data, batch_size):
             for batch_num in range(num_batches_per_epoch):
                 start_index = batch_num * batch_size
                 end_index = min((batch_num + 1) * batch_size, data_size)
-                X, y = data[start_index: end_index], data[start_index: end_index]
-                yield transform(X, y)
+                X = data[start_index: end_index]
+                max_length_word = max(len(max(seq, key=len)) for seq in X)
+                yield transform(X, max_length_word)
 
     return num_batches_per_epoch, data_generator()
 
 
-def transform(X, Y):
-    max_length_word = max(len(max(seq, key=len)) for seq in Y)
-
+def transform(X, max_length_word):
     word_input = []
     char_input = []
     case_input = []
@@ -139,11 +138,6 @@ def transform(X, Y):
         pos_tag_input.append(pad_sequence(pos_tag, max_length_word))
         char_input.append(pad_sequence(char, max_length_word, True))
 
-    #print("Word: ", np.asarray(word_input).shape)
-    #print("POS tag: ", np.asarray(pos_tag_input).shape)
-    #print("Case: ", np.asarray(case_input).shape)
-    #print("Char: ", np.asarray(padding(char_input)).shape)
-    #print("Label: ", np.asarray(label_input).shape)
     return [np.asarray(word_input), np.asarray(pos_tag_input), np.asarray(case_input), np.asarray(padding(char_input))], np.asarray(label_input)
 
 
