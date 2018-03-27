@@ -21,3 +21,11 @@ Test-Data: Prec: 0.88488, Rec: 0.90368, F1: 0.89418
 POS tag with 80 epochs
 Dev-Data: Prec: 0.93468, Rec: 0.93437, F1: 0.93452
 Test-Data: Prec: 0.89221, Rec: 0.89837, F1: 0.89528
+
+CRF with 80 epochs and 9 input
+Dev-Data: Prec: 0.87885, Rec: 0.89364, F1: 0.88618
+Test-Data: Prec: 0.84891, Rec: 0.86845, F1: 0.85857
+
+CRF with 100 epochs and 9 input
+Dev-Data: Prec: 0.80031, Rec: 0.78778, F1: 0.79400
+Test-Data: Prec: 0.78527, Rec: 0.77567, F1: 0.78044

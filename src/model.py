@@ -41,5 +41,5 @@ def get_model(word_embeddings, case_embeddings, char_index, label_index, posTagE
     model = Model(inputs=[words_input, pos_tag_input, casing_input, character_input], outputs=[output])
     model.compile(loss=crf.loss_function, optimizer='adam')
     model.summary()
-    plot_model(model, to_file='model.png')
+    #plot_model(model, to_file='model.png')
     return model

@@ -51,17 +51,16 @@ test_batch, test_batch_len = create_batches(test_set)
 
 model = get_model(wordEmbeddings, caseEmbeddings, char_index, label_index, posTagEmbedding)
 
-epochs = 1
+epochs = 80
 for epoch in range(epochs):
     print("Epoch %d/%d"%(epoch, epochs))
     for i, batch in enumerate(iterate_mini_batches(train_batch, train_batch_len)):
         labels, tokens, casing, char, pos_tag = batch
         model.train_on_batch([tokens, pos_tag, casing, char], labels)
-
-#   Performance on dev dataset
-predLabels, correctLabels = tag_dataset(dev_batch)
-pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
-print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
+    #   Performance on dev dataset
+    predLabels, correctLabels = tag_dataset(dev_batch)
+    pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
+    print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_batch)
