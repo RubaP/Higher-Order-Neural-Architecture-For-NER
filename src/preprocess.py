@@ -112,14 +112,20 @@ def create_batches(data, batch_size):
         """
         Generates a batch iterator for a dataset.
         """
+        def get_length(data):
+            word, case, char, label, pos_tag = data
+            return len(word)
+
         data_size = len(data)
+        data.sort(key=lambda x: get_length(x))
+
         while True:
             for batch_num in range(num_batches_per_epoch):
                 start_index = batch_num * batch_size
                 end_index = min((batch_num + 1) * batch_size, data_size)
                 X = data[start_index: end_index]
                 max_length_word = max(len(max(seq, key=len)) for seq in X)
-                yield transform(X, max_length_word)
+                yield transform(X, max(2,max_length_word))
 
     return num_batches_per_epoch, data_generator()
 
