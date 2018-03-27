@@ -48,8 +48,17 @@ model = get_model(wordEmbeddings, caseEmbeddings, char_index, posTagEmbedding, b
 
 train_steps, train_batches = create_batches(train_set, batch_size)
 dev_batch, dev_batch_len = create_batches(validation_set, batch_size)
-#test_batch, test_batch_len = create_batches(test_set, batch_size)
+test_batch, test_batch_len = create_batches(test_set, batch_size)
 
 epochs = 1
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs)
 
+#   Performance on dev dataset
+predLabels, correctLabels = tag_dataset(dev_batch)
+pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
+print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
+
+#   Performance on test dataset
+predLabels, correctLabels = tag_dataset(test_batch)
+pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
+print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))

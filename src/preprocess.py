@@ -1,5 +1,6 @@
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
+from keras.utils import to_categorical
 
 
 def readfile(filename):
@@ -143,8 +144,7 @@ def transform(X, Y):
     #print("Case: ", np.asarray(case_input).shape)
     #print("Char: ", np.asarray(padding(char_input)).shape)
     #print("Label: ", np.asarray(label_input).shape)
-    #return [np.asarray(word_input), np.asarray(pos_tag_input), np.asarray(case_input), np.asarray(padding(char_input))], np.asarray(label_input)
-    return [np.asarray(word_input), np.asarray(padding(char_input))], np.asarray(label_input)
+    return [np.asarray(word_input), np.asarray(pos_tag_input), np.asarray(case_input), np.asarray(padding(char_input))], np.asarray(label_input)
 
 
 def pad_sequence(seq, pad_length, isChair = False):

@@ -36,12 +36,12 @@ def get_model(word_embeddings, case_embeddings, char_index, posTagEmbedding, bat
     output = Dropout(100)(output)
     output = Dense(10, activation='tanh')(output)
 
-    crf = CRF(10)
+    crf = ChainCRF()
     output = crf(output)
 
     # define the model
     model = Model(inputs=[words_input, pos_tag_input, casing_input, character_input], outputs=[output])
-    model.compile(loss='categorical_crossentropy', optimizer='nadam')
+    model.compile(loss=crf.loss, optimizer='nadam')
     model.summary()
     plot_model(model, to_file='model.png')
     return model
