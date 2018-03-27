@@ -55,6 +55,7 @@ def get_label_index_matrix(label_set):
         label_index[label] = len(label_index)
     return label_index
 
+
 def get_POS_tag_index_matrix(POS_tag_set):
     POS_tag_index = {}
     for POS_tag in POS_tag_set:

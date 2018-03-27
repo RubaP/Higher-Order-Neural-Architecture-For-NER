@@ -4,6 +4,8 @@ from src.model import get_model
 from src.validation import compute_f1
 from keras.utils import Progbar
 import numpy as np
+from sklearn import metrics
+from itertools import chain
 
 
 def tag_dataset(dataset):
@@ -21,6 +23,7 @@ def tag_dataset(dataset):
         correctLabels.append(labels)
         predLabels.append(pred)
         b.update(i)
+    print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
     return predLabels, correctLabels
 
 
