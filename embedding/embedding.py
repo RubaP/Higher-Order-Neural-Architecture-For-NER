@@ -50,10 +50,10 @@ def get_char_index_matrix():
 
 
 def get_label_index_matrix(label_set):
-    label_index = {"PAD":0}
-    for label in label_set:
-        label_index[label] = len(label_index)
+    label_index = {'PAD': 0, 'O\n': 1, 'B-PER\n': 2, 'I-PER\n': 3, 'B-LOC\n': 4, 'I-LOC\n': 5, 'B-ORG\n': 6, 'I-ORG\n': 7,
+                   'B-MISC\n': 8, 'I-MISC\n': 9}
     return label_index
+
 
 def get_POS_tag_index_matrix(POS_tag_set):
     POS_tag_index = {"PAD":0}

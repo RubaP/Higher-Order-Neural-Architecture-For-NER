@@ -1,4 +1,4 @@
-from src.preprocess import readfile, add_chars, create_matrices, padding, create_batches, get_words_and_labels, transform
+from src.preprocess import readfile, add_chars, create_matrices, create_batches, get_words_and_labels, transform
 from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix, get_pos_tag_embedding
 from src.model import get_model
 from src.validation import compute_f1
@@ -19,6 +19,11 @@ def tag_dataset(dataset):
         pred = pred.argmax(axis=-1)  # Predict the classes
         output = np.squeeze(output)
         output = np.argmax(output, axis=1)
+
+        if output.shape[0] == 2 and output[1] == 0:
+            output = np.delete(output, [1])
+            pred = np.delete(pred, [1])
+
         correctLabels.append(output)
         predLabels.append(pred)
         b.update(i)
@@ -46,12 +51,12 @@ train_set = create_matrices(train, word_index,  label_index, case_index, char_in
 validation_set = create_matrices(validation, word_index, label_index, case_index, char_index, pos_tag_index)
 test_set = create_matrices(test, word_index, label_index, case_index, char_index, pos_tag_index)
 
-batch_size =10
+batch_size =20
 model = get_model(wordEmbeddings, caseEmbeddings, char_index, posTagEmbedding, batch_size)
 
 train_steps, train_batches = create_batches(train_set, batch_size)
 
-epochs = 1
+epochs = 15
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs)
 
 idx2Label = {v: k for k, v in label_index.items()}
