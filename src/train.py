@@ -56,7 +56,7 @@ model = get_model(wordEmbeddings, caseEmbeddings, char_index, posTagEmbedding, b
 
 train_steps, train_batches = create_batches(train_set, batch_size)
 
-epochs = 1
+epochs = 10
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs)
 
 idx2Label = {v: k for k, v in label_index.items()}

@@ -18,6 +18,8 @@ def get_model(word_embeddings, case_embeddings, char_index, posTagEmbedding, bat
     casing = Embedding(output_dim=case_embeddings.shape[1], input_dim=case_embeddings.shape[0],
                        weights=[case_embeddings], mask_zero=True,)(casing_input)
 
+    pos_input = Input(batch_shape=(None, None, None), dtype='int32')
+
     x = Concatenate(axis=-1)([words, casing])
     x = Bidirectional(LSTM(units=200, return_sequences=True))(x)
     x = Dropout(0.5)(x)
@@ -27,7 +29,7 @@ def get_model(word_embeddings, case_embeddings, char_index, posTagEmbedding, bat
     crf = ChainCRF()
     pred = crf(x)
 
-    model = Model(inputs=[word_ids, casing_input], outputs=[pred])
+    model = Model(inputs=[word_ids, casing_input, pos_input], outputs=[pred])
     model.compile(loss=crf.loss, optimizer="nadam")
     model.summary()
     return model
