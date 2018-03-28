@@ -4,6 +4,7 @@ from src.model import get_model
 from src.validation import compute_f1
 from keras.utils import Progbar
 import numpy as np
+from itertools import chain
 
 
 def tag_dataset(dataset):
@@ -21,6 +22,7 @@ def tag_dataset(dataset):
         correctLabels.append(labels)
         predLabels.append(pred)
         b.update(i)
+    print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
     return predLabels, correctLabels
 
 
@@ -57,11 +59,10 @@ for epoch in range(epochs):
     for i, batch in enumerate(iterate_mini_batches(train_batch, train_batch_len)):
         labels, tokens, casing, char, pos_tag = batch
         model.train_on_batch([tokens, pos_tag, casing, char], labels)
-
-#   Performance on dev dataset
-predLabels, correctLabels = tag_dataset(dev_batch)
-pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
-print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
+    #   Performance on dev dataset
+    predLabels, correctLabels = tag_dataset(dev_batch)
+    pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
+    print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_batch)
