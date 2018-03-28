@@ -145,7 +145,7 @@ def transform(X, max_length_word):
         char_input.append(pad_sequence(char, max_length_word, True))
 
     #return [np.asarray(word_input), np.asarray(pos_tag_input), np.asarray(case_input), np.asarray(padding(char_input))], np.asarray(label_input)
-    return [np.asarray(word_input)], np.asarray(label_input)
+    return [np.asarray(word_input), np.asarray(case_input)], np.asarray(label_input)
 
 
 def pad_sequence(seq, pad_length, isChair = False):

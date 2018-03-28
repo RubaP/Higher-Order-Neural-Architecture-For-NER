@@ -9,12 +9,17 @@ from src.layers import ChainCRF
 
 def get_model(word_embeddings, case_embeddings, char_index, posTagEmbedding, batch_size):
     word_ids = Input(batch_shape=(None, None), dtype='int32')
-    word_embeddings = Embedding(input_dim=word_embeddings.shape[0],
+    words = Embedding(input_dim=word_embeddings.shape[0],
                                     output_dim=word_embeddings.shape[1],
                                     mask_zero=True,
                                     weights=[word_embeddings])(word_ids)
 
-    x = Bidirectional(LSTM(units=200, return_sequences=True))(word_embeddings)
+    casing_input = Input(batch_shape=(None, None), dtype='int32')
+    casing = Embedding(output_dim=case_embeddings.shape[1], input_dim=case_embeddings.shape[0],
+                       weights=[case_embeddings], mask_zero=True,)(casing_input)
+
+    x = Concatenate(axis=-1)([words, casing])
+    x = Bidirectional(LSTM(units=200, return_sequences=True))(x)
     x = Dropout(0.5)(x)
     x = Dense(200, activation='tanh')(x)
     x = Dense(10)(x)
@@ -22,7 +27,7 @@ def get_model(word_embeddings, case_embeddings, char_index, posTagEmbedding, bat
     crf = ChainCRF()
     pred = crf(x)
 
-    model = Model(inputs=[word_ids], outputs=[pred])
+    model = Model(inputs=[word_ids, casing_input], outputs=[pred])
     model.compile(loss=crf.loss, optimizer="nadam")
     model.summary()
     return model
