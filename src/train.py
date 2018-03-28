@@ -5,9 +5,10 @@ from src.validation import compute_f1
 from keras.utils import Progbar
 import numpy as np
 from itertools import chain
+from sklearn import metrics
 
 
-def tag_dataset(dataset):
+def tag_dataset(dataset, isTest = False):
     correctLabels = []
     predLabels = []
     b = Progbar(len(dataset))
@@ -22,7 +23,11 @@ def tag_dataset(dataset):
         correctLabels.append(labels)
         predLabels.append(pred)
         b.update(i)
-    print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
+
+    #print classification report for test
+    if isTest:
+        print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
+
     return predLabels, correctLabels
 
 
@@ -65,6 +70,6 @@ for epoch in range(epochs):
     print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
 
 #   Performance on test dataset
-predLabels, correctLabels = tag_dataset(test_batch)
+predLabels, correctLabels = tag_dataset(test_batch, True)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
 print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))
