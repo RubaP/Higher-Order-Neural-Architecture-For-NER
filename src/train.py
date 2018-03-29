@@ -2,11 +2,12 @@ from src.preprocess import readfile, add_chars, create_matrices, create_batches,
 from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix, \
     get_pos_tag_embedding
 from src.model import get_model
-from src.validation import compute_f1
+from src.validation import Metrics
 from keras.utils import Progbar
 import numpy as np
 from sklearn import metrics
 from itertools import chain
+from src.validation import compute_f1
 
 
 def tag_dataset(dataset):
@@ -57,14 +58,12 @@ model = get_model(wordEmbeddings, caseEmbeddings, char_index, pos_tag_embedding)
 
 train_steps, train_batches = create_batches(train_set, batch_size)
 
-epochs = 3
-model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs)
-
 idx2Label = {v: k for k, v in label_index.items()}
-#   Performance on dev dataset
-predLabels, correctLabels = tag_dataset(validation_set)
-pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, idx2Label)
-print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
+
+metric = Metrics(validation_set, idx2Label)
+
+epochs = 3
+model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric])
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_set)

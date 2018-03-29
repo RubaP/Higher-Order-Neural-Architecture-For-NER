@@ -1,4 +1,7 @@
-
+from keras.callbacks import Callback
+from src.preprocess import transform
+from keras.utils import Progbar
+import numpy as np
 
 # Method to compute the accuracy. Call predict_labels to get the labels for the dataset
 def compute_f1(predictions, correct, idx2Label):
@@ -60,3 +63,49 @@ def compute_precision(guessed_sentences, correct_sentences):
         precision = float(correctCount) / count
 
     return precision
+    
+class Metrics(Callback):
+    
+    def __init__(self, train_data, idx2Label):
+        self.valid_data = train_data    
+        self.idx2Label = idx2Label
+        
+    def on_train_begin(self, logs={}):         
+        return
+    
+    def on_train_end(self, logs={}):
+        return
+
+    def on_epoch_begin(self, epoch, logs={}):        
+        return
+    
+    def on_epoch_end(self, epoch, logs={}):  
+        
+        dataset = self.valid_data                
+        correctLabels = []
+        predLabels = []
+        for i, data in enumerate(dataset):
+            tokens, casing, char, labels, pos_tag = data
+            input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)))
+            pred = self.model.predict(input, verbose=False)[0]
+            pred = pred.argmax(axis=-1)  # Predict the classes
+            output = np.squeeze(output)
+            output = np.argmax(output, axis=1)
+    
+            if output.shape[0] == 2 and output[1] == 0:
+                output = np.delete(output, [1])
+                pred = np.delete(pred, [1])
+    
+            correctLabels.append(output)
+            predLabels.append(pred)                   
+        
+        pre_dev, rec_dev, f1_dev = compute_f1(predLabels, correctLabels, self.idx2Label)
+        print("Dev-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_dev, rec_dev, f1_dev))
+
+        return
+
+    def on_batch_begin(self, batch, logs={}):
+        return
+
+    def on_batch_end(self, batch, logs={}):
+        return
