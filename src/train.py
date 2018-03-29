@@ -1,6 +1,6 @@
 from src.preprocess import readfile, add_chars, create_matrices, create_batches, get_words_and_labels, transform
-from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix,\
-    get_POS_tag_index_matrix
+from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix, \
+    get_pos_tag_embedding
 from src.model import get_model
 from src.validation import compute_f1
 from keras.utils import Progbar
@@ -43,7 +43,7 @@ test = add_chars(test)
 
 words, labelSet, pos_tag_set = get_words_and_labels(train, validation, test)
 label_index = get_label_index_matrix(labelSet)
-pos_tag_index = get_POS_tag_index_matrix(pos_tag_set)
+pos_tag_index, pos_tag_embedding = get_pos_tag_embedding(pos_tag_set)
 case_index, caseEmbeddings = get_case_embedding()
 word_index, wordEmbeddings = get_word_embedding(words)
 char_index = get_char_index_matrix()
@@ -53,11 +53,11 @@ validation_set = create_matrices(validation, word_index, label_index, case_index
 test_set = create_matrices(test, word_index, label_index, case_index, char_index, pos_tag_index)
 
 batch_size =20
-model = get_model(wordEmbeddings, caseEmbeddings, char_index)
+model = get_model(wordEmbeddings, caseEmbeddings, char_index, pos_tag_embedding)
 
 train_steps, train_batches = create_batches(train_set, batch_size)
 
-epochs = 15
+epochs = 3
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs)
 
 idx2Label = {v: k for k, v in label_index.items()}
