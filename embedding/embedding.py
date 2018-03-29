@@ -35,13 +35,6 @@ def get_case_embedding():
     return case_index, embedding
 
 
-def get_pos_tag_embedding(pos_tag_set):
-    # Hard coded case lookup
-    pos_tag_index = get_POS_tag_index_matrix(pos_tag_set)
-    embedding = np.identity(len(pos_tag_index), dtype='float32')
-    return pos_tag_index, embedding
-
-
 def get_char_index_matrix():
     char_index = {"PADDING": 0, "UNKNOWN": 1}
     for c in " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|":
