@@ -139,7 +139,7 @@ def transform(X, max_length_word):
     for word, case, char, label, pos_tag in X:
         word_input.append(pad_sequence(word, max_length_word))
         case_input.append(pad_sequence(case, max_length_word))
-        label_input.append(np.eye(10)[pad_sequence(label, max_length_word)])
+        label_input.append(np.eye(9)[pad_sequence(label, max_length_word)])
         pos_tag_input.append(pad_sequence(pos_tag, max_length_word))
         char_input.append(pad_sequence(char, max_length_word, True))
 

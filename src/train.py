@@ -43,7 +43,7 @@ validation = add_chars(validation)
 test = add_chars(test)
 
 words, labelSet, pos_tag_set = get_words_and_labels(train, validation, test)
-label_index = get_label_index_matrix(labelSet)
+label_index = get_label_index_matrix()
 pos_tag_index, pos_tag_embedding = get_pos_tag_embedding(pos_tag_set)
 case_index, caseEmbeddings = get_case_embedding()
 word_index, wordEmbeddings = get_word_embedding(words)

@@ -49,9 +49,9 @@ def get_char_index_matrix():
     return char_index
 
 
-def get_label_index_matrix(label_set):
-    label_index = {'PAD': 0, 'O\n': 1, 'B-PER\n': 2, 'I-PER\n': 3, 'B-LOC\n': 4, 'I-LOC\n': 5, 'B-ORG\n': 6, 'I-ORG\n': 7,
-                   'B-MISC\n': 8, 'I-MISC\n': 9}
+def get_label_index_matrix():
+    label_index = {'O\n': 0, 'B-PER\n': 1, 'I-PER\n': 2, 'B-LOC\n': 3, 'I-LOC\n': 4, 'B-ORG\n': 5, 'I-ORG\n': 6,
+                   'B-MISC\n': 7, 'I-MISC\n': 8}
     return label_index
 
 

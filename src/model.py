@@ -3,7 +3,7 @@ from keras.layers import Dense, Embedding, Input, Dropout, LSTM, Bidirectional, 
 from keras.layers.merge import Concatenate
 from src.layers import ChainCRF
 import keras.backend as K
-from keras.optimizers import Adam,SGD
+from keras.optimizers import SGD
 
 
 def get_model(word_embeddings, case_embeddings, char_index, pos_tag_embedding):
@@ -39,8 +39,7 @@ def get_model(word_embeddings, case_embeddings, char_index, pos_tag_embedding):
     x = Concatenate(axis=-1)([words, casing, char_embeddings, pos_tag])
     x = Dropout(0.5)(x)
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
-    #x = Dense(200, activation='tanh')(x)
-    x = Dense(10)(x)
+    x = Dense(9)(x)
 
     crf = ChainCRF()
     pred = crf(x)
