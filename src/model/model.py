@@ -6,16 +6,14 @@ import keras.backend as K
 from keras.optimizers import SGD
 
 
-def get_model(word_embeddings, case_embeddings, char_index, pos_tag_index):
+def get_model(word_embeddings, char_index, pos_tag_index):
     word_ids = Input(batch_shape=(None, None), dtype='int32')
     words = Embedding(input_dim=word_embeddings.shape[0],
                                     output_dim=word_embeddings.shape[1],
                                     mask_zero=True,
                                     weights=[word_embeddings])(word_ids)
 
-    casing_input = Input(batch_shape=(None, None), dtype='int32')
-    casing = Embedding(output_dim=case_embeddings.shape[1], input_dim=case_embeddings.shape[0],
-                       weights=[case_embeddings], mask_zero=True, trainable=False)(casing_input)
+    casing_input = Input(batch_shape=(None, None, 8), dtype='float32')
 
     pos_input = Input(batch_shape=(None, None, len(pos_tag_index)), dtype='float32')
 
@@ -34,7 +32,7 @@ def get_model(word_embeddings, case_embeddings, char_index, pos_tag_index):
     # shape = (batch size, max sentence length, char hidden size)
     char_embeddings = Lambda(lambda x: K.reshape(x, shape=[-1, s[1], 2 * 25]))(char_embeddings)
 
-    x = Concatenate(axis=-1)([words, casing, char_embeddings, pos_input])
+    x = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
     x = Dropout(0.5)(x)
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
     x = Dense(9)(x)

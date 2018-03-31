@@ -34,8 +34,8 @@ def add_chars(sentences):
     return sentences
 
 
-def get_casing(word, lookup):
-    casing = 'other'
+def get_casing(word):
+    casing = []
 
     num_of_digits = 0
     for char in word:
@@ -44,23 +44,19 @@ def get_casing(word, lookup):
 
     num_of_digits_norm = num_of_digits / float(len(word))
 
-    if word.isdigit():  # Is a digit
-        casing = 'numeric'
-    elif num_of_digits_norm > 0.5:
-        casing = 'mainly_numeric'
-    elif word.islower():  # All lower case
-        casing = 'allLower'
-    elif word.isupper():  # All upper case
-        casing = 'allUpper'
-    elif word[0].isupper():  # is a title, initial char upper, then all lower
-        casing = 'initialUpper'
-    elif num_of_digits > 0:
-        casing = 'contains_digit'
+    casing.append(1) if word.isdigit() else casing.append(0)
+    casing.append(1) if num_of_digits_norm > 0.5 else casing.append(0)
+    casing.append(1) if word.islower() else casing.append(0)
+    casing.append(1) if word.isupper() else casing.append(0)
+    casing.append(1) if word[0].isupper() else casing.append(0)
+    casing.append(1) if num_of_digits > 0 else casing.append(0)
+    casing.append(1) if word.isalnum() > 0 else casing.append(0)
+    casing.append(1) if word.isalpha() > 0 else casing.append(0)
 
-    return lookup[casing]
+    return casing
 
 
-def create_matrices(sentences, word_index, label_index, case_index, char_index, pos_tag_index):
+def create_matrices(sentences, word_index, label_index, char_index, pos_tag_index):
     unknown_index = word_index['UNKNOWN_TOKEN']
     dataset = []
 
@@ -88,7 +84,7 @@ def create_matrices(sentences, word_index, label_index, case_index, char_index, 
                 char_idx.append(char_index[x])
             # Get the label and map to int
             word_indices.append(word_idx)
-            case_indices.append(get_casing(word, case_index))
+            case_indices.append(get_casing(word))
             char_indices.append(char_idx)
             label_indices.append(label_index[label])
             pos_tag_inices.append(pos_tag_index[pos_tag])
@@ -139,7 +135,7 @@ def transform(X, max_length_word, pos_tag_index):
 
     for word, case, char, label, pos_tag in X:
         word_input.append(pad_sequence(word, max_length_word))
-        case_input.append(pad_sequence(case, max_length_word))
+        case_input.append(pad_sequence(case, max_length_word, False, True))
         label_input.append(np.eye(9)[pad_sequence(label, max_length_word)])
         pos_tag_input.append(to_categorical(pad_sequence(pos_tag, max_length_word), num_classes=len(pos_tag_index)))
         char_input.append(pad_sequence(char, max_length_word, True))
@@ -147,10 +143,14 @@ def transform(X, max_length_word, pos_tag_index):
     return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input))], np.asarray(label_input)
 
 
-def pad_sequence(seq, pad_length, isChair = False):
+def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
     if isChair:
         for x in range(len(seq), pad_length):
             seq.append([])
+        return seq
+    elif isCasing:
+        for x in range(pad_length - len(seq)):
+            seq.append(np.zeros(8))
         return seq
     else:
         return np.pad(seq, (0, pad_length - len(seq)), 'constant', constant_values=(0,0))

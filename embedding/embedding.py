@@ -27,14 +27,6 @@ def get_word_embedding(words):
     return word_index, word_embeddings
 
 
-def get_case_embedding():
-    # Hard coded case lookup
-    case_index = {'numeric': 7, 'allLower': 1, 'allUpper': 2, 'initialUpper': 3, 'other': 4, 'mainly_numeric': 5,
-                  'contains_digit': 6, 'PADDING_TOKEN': 0}
-    embedding = np.identity(len(case_index), dtype='float32')
-    return case_index, embedding
-
-
 def get_char_index_matrix():
     char_index = {"PADDING": 0, "UNKNOWN": 1}
     for c in " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|":

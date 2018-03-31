@@ -1,5 +1,5 @@
 from src.preprocess import readfile, add_chars, create_matrices, create_batches, get_words_and_labels, transform
-from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix, \
+from embedding.embedding import get_word_embedding, get_char_index_matrix, get_label_index_matrix, \
     get_pos_index_matrix
 from src.model.model import get_model
 from src.validation import Metrics
@@ -45,16 +45,15 @@ test = add_chars(test)
 words, labelSet, pos_tag_set = get_words_and_labels(train, validation, test)
 label_index = get_label_index_matrix()
 pos_tag_index = get_pos_index_matrix(pos_tag_set)
-case_index, caseEmbeddings = get_case_embedding()
 word_index, wordEmbeddings = get_word_embedding(words)
 char_index = get_char_index_matrix()
 
-train_set = create_matrices(train, word_index,  label_index, case_index, char_index, pos_tag_index)
-validation_set = create_matrices(validation, word_index, label_index, case_index, char_index, pos_tag_index)
-test_set = create_matrices(test, word_index, label_index, case_index, char_index, pos_tag_index)
+train_set = create_matrices(train, word_index,  label_index, char_index, pos_tag_index)
+validation_set = create_matrices(validation, word_index, label_index, char_index, pos_tag_index)
+test_set = create_matrices(test, word_index, label_index, char_index, pos_tag_index)
 
 batch_size =20
-model = get_model(wordEmbeddings, caseEmbeddings, char_index, pos_tag_index)
+model = get_model(wordEmbeddings, char_index, pos_tag_index)
 
 train_steps, train_batches = create_batches(train_set, batch_size, pos_tag_index)
 
