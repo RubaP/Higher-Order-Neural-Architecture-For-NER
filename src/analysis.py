@@ -1,8 +1,7 @@
 
-def print_wrong_tags(sentence_info, prediction, label_index):
+def print_wrong_tags(sentence_info, prediction, idx2Label):
     print("Total sentences: ", len(sentence_info))
     wrong_words = 0
-    idx2Label = {v: k for k, v in label_index.items()}
 
     for sentence_index, sentence in enumerate(sentence_info):
         if len(sentence) == len(prediction[sentence_index]):
@@ -11,5 +10,5 @@ def print_wrong_tags(sentence_info, prediction, label_index):
                     predicted = idx2Label[prediction[sentence_index][word_index]]
                     if word_info[3] != predicted:
                         wrong_words +=1
-                        print(wrong_words, " : ", "Word: ", word_info[0], " Original: ", word_info[3] +" Predicted: ",
+                        print(wrong_words, " : ", "Word:", word_info[0], "  Original:", word_info[3] +"  Predicted:",
                               idx2Label[prediction[sentence_index][word_index]])

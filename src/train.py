@@ -8,6 +8,7 @@ import numpy as np
 from sklearn import metrics
 from itertools import chain
 from src.validation import compute_f1
+from src.analysis import print_wrong_tags
 
 
 def tag_dataset(dataset):
@@ -21,11 +22,6 @@ def tag_dataset(dataset):
         pred = pred.argmax(axis=-1)  # Predict the classes
         output = np.squeeze(output)
         output = np.argmax(output, axis=1)
-
-        if output.shape[0] == 2 and output[1] == 0:
-            output = np.delete(output, [1])
-            pred = np.delete(pred, [1])
-
         correctLabels.append(output)
         predLabels.append(pred)
         b.update(i)
@@ -37,6 +33,8 @@ def tag_dataset(dataset):
 train = readfile("../data/train.txt")
 validation = readfile("../data/valid.txt")
 test = readfile("../data/test.txt")
+
+validation_data = validation
 
 train = add_chars(train)
 validation = add_chars(validation)
@@ -68,3 +66,6 @@ model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs
 predLabels, correctLabels = tag_dataset(test_set)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
 print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))
+
+predLabels, correctLabels = tag_dataset(validation_set)
+print_wrong_tags(validation_data, predLabels, idx2Label)
