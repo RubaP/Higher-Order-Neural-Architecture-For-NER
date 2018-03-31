@@ -8,6 +8,7 @@ import numpy as np
 from sklearn import metrics
 from itertools import chain
 from src.validation import compute_f1
+from src.analysis import print_wrong_tags
 
 
 def tag_dataset(dataset):
@@ -31,12 +32,16 @@ def tag_dataset(dataset):
         b.update(i)
 
     print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
+    print_wrong_tags(test_sentences, predLabels, label_index)
     return predLabels, correctLabels
 
 
 train = readfile("../data/train.txt")
 validation = readfile("../data/valid.txt")
 test = readfile("../data/test.txt")
+
+#keep words for analysis
+test_sentences = test
 
 train = add_chars(train)
 validation = add_chars(validation)

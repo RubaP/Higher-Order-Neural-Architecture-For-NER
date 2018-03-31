@@ -50,8 +50,8 @@ def get_char_index_matrix():
 
 
 def get_label_index_matrix():
-    label_index = {'O\n': 0, 'B-PER\n': 1, 'I-PER\n': 2, 'B-LOC\n': 3, 'I-LOC\n': 4, 'B-ORG\n': 5, 'I-ORG\n': 6,
-                   'B-MISC\n': 7, 'I-MISC\n': 8}
+    label_index = {'O': 0, 'B-PER': 1, 'I-PER': 2, 'B-LOC': 3, 'I-LOC': 4, 'B-ORG': 5, 'I-ORG': 6, 'B-MISC': 7,
+                   'I-MISC': 8}
     return label_index
 
 

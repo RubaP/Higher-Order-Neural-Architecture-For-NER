@@ -18,7 +18,7 @@ def readfile(filename):
                 sentence = []
             continue
         splits = line.split(' ')
-        sentence.append([splits[0], splits[1], splits[-1]])
+        sentence.append([splits[0], splits[1], splits[-1].replace('\n','')])
 
     if len(sentence) > 0:
         sentences.append(sentence)
