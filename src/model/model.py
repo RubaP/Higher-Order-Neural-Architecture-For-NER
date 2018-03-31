@@ -1,12 +1,12 @@
 from keras.models import Model
 from keras.layers import Dense, Embedding, Input, Dropout, LSTM, Bidirectional, Lambda
 from keras.layers.merge import Concatenate
-from src.layers import ChainCRF
+from src.model.layers import ChainCRF
 import keras.backend as K
 from keras.optimizers import SGD
 
 
-def get_model(word_embeddings, case_embeddings, char_index, pos_tag_embedding):
+def get_model(word_embeddings, case_embeddings, char_index, pos_tag_index):
     word_ids = Input(batch_shape=(None, None), dtype='int32')
     words = Embedding(input_dim=word_embeddings.shape[0],
                                     output_dim=word_embeddings.shape[1],
@@ -17,9 +17,7 @@ def get_model(word_embeddings, case_embeddings, char_index, pos_tag_embedding):
     casing = Embedding(output_dim=case_embeddings.shape[1], input_dim=case_embeddings.shape[0],
                        weights=[case_embeddings], mask_zero=True, trainable=False)(casing_input)
 
-    pos_input = Input(batch_shape=(None, None), dtype='float32')
-    pos_tag = Embedding(output_dim=pos_tag_embedding.shape[1], input_dim=pos_tag_embedding.shape[0],
-                       weights=[pos_tag_embedding], mask_zero=True, trainable=False)(pos_input)
+    pos_input = Input(batch_shape=(None, None, len(pos_tag_index)), dtype='float32')
 
     # build character based word embedding
     char_input = Input(batch_shape=(None, None, None), dtype='int32')
@@ -36,7 +34,7 @@ def get_model(word_embeddings, case_embeddings, char_index, pos_tag_embedding):
     # shape = (batch size, max sentence length, char hidden size)
     char_embeddings = Lambda(lambda x: K.reshape(x, shape=[-1, s[1], 2 * 25]))(char_embeddings)
 
-    x = Concatenate(axis=-1)([words, casing, char_embeddings, pos_tag])
+    x = Concatenate(axis=-1)([words, casing, char_embeddings, pos_input])
     x = Dropout(0.5)(x)
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
     x = Dense(9)(x)

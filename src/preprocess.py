@@ -1,5 +1,6 @@
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
+from keras.utils import to_categorical
 
 
 def readfile(filename):
@@ -104,7 +105,7 @@ def padding(chars):
     return padded_chair
 
 
-def create_batches(data, batch_size):
+def create_batches(data, batch_size, pos_tag_index):
     num_batches_per_epoch = int((len(data) - 1) / batch_size) + 1
 
     def data_generator():
@@ -124,12 +125,12 @@ def create_batches(data, batch_size):
                 end_index = min((batch_num + 1) * batch_size, data_size)
                 X = data[start_index: end_index]
                 max_length_word = max(len(max(seq, key=len)) for seq in X)
-                yield transform(X, max(2,max_length_word))
+                yield transform(X, max(2,max_length_word), pos_tag_index)
 
     return num_batches_per_epoch, data_generator()
 
 
-def transform(X, max_length_word):
+def transform(X, max_length_word, pos_tag_index):
     word_input = []
     char_input = []
     case_input = []
@@ -140,7 +141,7 @@ def transform(X, max_length_word):
         word_input.append(pad_sequence(word, max_length_word))
         case_input.append(pad_sequence(case, max_length_word))
         label_input.append(np.eye(9)[pad_sequence(label, max_length_word)])
-        pos_tag_input.append(pad_sequence(pos_tag, max_length_word))
+        pos_tag_input.append(to_categorical(pad_sequence(pos_tag, max_length_word), num_classes=len(pos_tag_index)))
         char_input.append(pad_sequence(char, max_length_word, True))
 
     return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input))], np.asarray(label_input)

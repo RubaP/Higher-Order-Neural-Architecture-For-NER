@@ -1,6 +1,5 @@
 from keras.callbacks import Callback
 from src.preprocess import transform
-from keras.utils import Progbar
 import numpy as np
 
 # Method to compute the accuracy. Call predict_labels to get the labels for the dataset
@@ -66,9 +65,10 @@ def compute_precision(guessed_sentences, correct_sentences):
     
 class Metrics(Callback):
     
-    def __init__(self, train_data, idx2Label):
+    def __init__(self, train_data, idx2Label, pos_tag_index):
         self.valid_data = train_data    
         self.idx2Label = idx2Label
+        self.pos_tag_index = pos_tag_index
         
     def on_train_begin(self, logs={}):         
         return
@@ -79,14 +79,13 @@ class Metrics(Callback):
     def on_epoch_begin(self, epoch, logs={}):        
         return
     
-    def on_epoch_end(self, epoch, logs={}):  
-        
+    def on_epoch_end(self, epoch, logs={}):
         dataset = self.valid_data                
         correctLabels = []
         predLabels = []
         for i, data in enumerate(dataset):
             tokens, casing, char, labels, pos_tag = data
-            input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)))
+            input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)), self.pos_tag_index)
             pred = self.model.predict(input, verbose=False)[0]
             pred = pred.argmax(axis=-1)  # Predict the classes
             output = np.squeeze(output)

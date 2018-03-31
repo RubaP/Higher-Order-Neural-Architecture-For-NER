@@ -1,14 +1,13 @@
 from src.preprocess import readfile, add_chars, create_matrices, create_batches, get_words_and_labels, transform
 from embedding.embedding import get_word_embedding, get_case_embedding, get_char_index_matrix, get_label_index_matrix, \
-    get_pos_tag_embedding
-from src.model import get_model
+    get_pos_index_matrix
+from src.model.model import get_model
 from src.validation import Metrics
 from keras.utils import Progbar
 import numpy as np
 from sklearn import metrics
 from itertools import chain
 from src.validation import compute_f1
-from src.analysis import print_wrong_tags
 
 
 def tag_dataset(dataset):
@@ -17,7 +16,7 @@ def tag_dataset(dataset):
     b = Progbar(len(dataset))
     for i, data in enumerate(dataset):
         tokens, casing, char, labels, pos_tag = data
-        input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)))
+        input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)), pos_tag_index)
         pred = model.predict(input, verbose=False)[0]
         pred = pred.argmax(axis=-1)  # Predict the classes
         output = np.squeeze(output)
@@ -32,7 +31,6 @@ def tag_dataset(dataset):
         b.update(i)
 
     print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
-    print_wrong_tags(test_sentences, predLabels, label_index)
     return predLabels, correctLabels
 
 
@@ -40,16 +38,13 @@ train = readfile("../data/train.txt")
 validation = readfile("../data/valid.txt")
 test = readfile("../data/test.txt")
 
-#keep words for analysis
-test_sentences = test
-
 train = add_chars(train)
 validation = add_chars(validation)
 test = add_chars(test)
 
 words, labelSet, pos_tag_set = get_words_and_labels(train, validation, test)
 label_index = get_label_index_matrix()
-pos_tag_index, pos_tag_embedding = get_pos_tag_embedding(pos_tag_set)
+pos_tag_index = get_pos_index_matrix(pos_tag_set)
 case_index, caseEmbeddings = get_case_embedding()
 word_index, wordEmbeddings = get_word_embedding(words)
 char_index = get_char_index_matrix()
@@ -59,13 +54,13 @@ validation_set = create_matrices(validation, word_index, label_index, case_index
 test_set = create_matrices(test, word_index, label_index, case_index, char_index, pos_tag_index)
 
 batch_size =20
-model = get_model(wordEmbeddings, caseEmbeddings, char_index, pos_tag_embedding)
+model = get_model(wordEmbeddings, caseEmbeddings, char_index, pos_tag_index)
 
-train_steps, train_batches = create_batches(train_set, batch_size)
+train_steps, train_batches = create_batches(train_set, batch_size, pos_tag_index)
 
 idx2Label = {v: k for k, v in label_index.items()}
 
-metric = Metrics(validation_set, idx2Label)
+metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
 epochs = 100
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric])
