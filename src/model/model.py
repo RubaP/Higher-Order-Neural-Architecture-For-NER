@@ -32,8 +32,9 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     # shape = (batch size, max sentence length, char hidden size)
     char_embeddings = Lambda(lambda x: K.reshape(x, shape=[-1, s[1], 2 * 25]))(char_embeddings)
 
-    x = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
+    x = Concatenate(axis=-1)([words, char_embeddings])
     x = Dropout(0.5)(x)
+    x = Concatenate(axis=-1)([x, casing_input, pos_input])
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
     x = Dense(9)(x)
 
@@ -41,6 +42,7 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     pred = crf(x)
 
     model = Model(inputs=[word_ids, casing_input, pos_input, char_input], outputs=[pred])
-    model.compile(loss=crf.loss, optimizer=SGD(lr=0.01, clipnorm=5.0))
+    #model.compile(loss=crf.loss, optimizer=SGD(lr=0.01, clipnorm=5.0))
+    model.compile(loss=crf.loss, optimizer="adam")
     model.summary()
     return model
