@@ -18,9 +18,10 @@ def tag_dataset(dataset):
     for i, data in enumerate(dataset):
         tokens, casing, char, labels, pos_tag = data
         input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)), pos_tag_index)
-        pred = model.predict(input, verbose=False)[0]
+        pred = model.predict(input, verbose=False)
+        pred = np.add(np.squeeze(pred[0]), np.flip(np.squeeze(pred[1]), axis=0))
         pred = pred.argmax(axis=-1)  # Predict the classes
-        output = np.squeeze(output)
+        output = np.squeeze(output[0])
         output = np.argmax(output, axis=1)
         correctLabels.append(output)
         predLabels.append(pred)
@@ -59,13 +60,13 @@ idx2Label = {v: k for k, v in label_index.items()}
 
 metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
-epochs = 100
-model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric])
+epochs = 1
+model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric], verbose=2)
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_set)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
 print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))
 
-predLabels, correctLabels = tag_dataset(validation_set)
-print_wrong_tags(validation_data, predLabels, idx2Label)
+#predLabels, correctLabels = tag_dataset(validation_set)
+#print_wrong_tags(validation_data, predLabels, idx2Label)

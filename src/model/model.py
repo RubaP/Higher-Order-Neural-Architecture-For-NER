@@ -1,9 +1,10 @@
 from keras.models import Model
-from keras.layers import Dense, Embedding, Input, Dropout, LSTM, Bidirectional, Lambda
+from keras.layers import Dense, Embedding, Input, Dropout, LSTM, Bidirectional, Lambda, Add
 from keras.layers.merge import Concatenate
 from src.model.layers import ChainCRF
 import keras.backend as K
 from keras.optimizers import SGD
+import numpy as np
 
 
 def get_model(word_embeddings, char_index, pos_tag_index):
@@ -13,7 +14,7 @@ def get_model(word_embeddings, char_index, pos_tag_index):
                                     mask_zero=True,
                                     weights=[word_embeddings])(word_ids)
 
-    casing_input = Input(batch_shape=(None, None, 8), dtype='float32')
+    casing_input = Input(batch_shape=(None, None, 11), dtype='float32')
 
     pos_input = Input(batch_shape=(None, None, len(pos_tag_index)), dtype='float32')
 
@@ -32,15 +33,21 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     # shape = (batch size, max sentence length, char hidden size)
     char_embeddings = Lambda(lambda x: K.reshape(x, shape=[-1, s[1], 2 * 25]))(char_embeddings)
 
-    x = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
-    x = Dropout(0.5)(x)
-    x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
+    word_representation = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
+    x = Dropout(0.5)(word_representation)
+    x = LSTM(units=100, return_sequences=True)(x)
     x = Dense(9)(x)
+    crfF = ChainCRF()
+    predF = crfF(x)
 
-    crf = ChainCRF()
-    pred = crf(x)
+    word_representation = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
+    y = K.reverse(word_representation, axes=1)
+    y = LSTM(units=100, return_sequences=True, go_backwards=True)(x)
+    y = Dense(9)(y)
+    crfB = ChainCRF()
+    predB = crfB(y)
 
-    model = Model(inputs=[word_ids, casing_input, pos_input, char_input], outputs=[pred])
-    model.compile(loss=crf.loss, optimizer=SGD(lr=0.01, clipnorm=5.0))
+    model = Model(inputs=[word_ids, casing_input, pos_input, char_input], outputs=[predF, predB])
+    model.compile(loss=[crfF.loss, crfB.loss], optimizer="adam")
     model.summary()
     return model

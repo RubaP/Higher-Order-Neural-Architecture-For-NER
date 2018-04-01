@@ -52,6 +52,9 @@ def get_casing(word):
     casing.append(1) if num_of_digits > 0 else casing.append(0)
     casing.append(1) if word.isalnum() > 0 else casing.append(0)
     casing.append(1) if word.isalpha() > 0 else casing.append(0)
+    casing.append(1) if word.find("\'") >= 0 else casing.append(0)
+    casing.append(1) if word == "(" or word == ")" else casing.append(0)
+    casing.append(1) if len(word) == 1 else casing.append(0)
 
     return casing
 
@@ -97,7 +100,7 @@ def create_matrices(sentences, word_index, label_index, char_index, pos_tag_inde
 def padding(chars):
     padded_chair = []
     for i in chars:
-        padded_chair.append(pad_sequences(i, 52, padding='post'))
+        padded_chair.append(pad_sequences(i, 32, padding='post'))
     return padded_chair
 
 
@@ -140,7 +143,7 @@ def transform(X, max_length_word, pos_tag_index):
         pos_tag_input.append(to_categorical(pad_sequence(pos_tag, max_length_word), num_classes=len(pos_tag_index)))
         char_input.append(pad_sequence(char, max_length_word, True))
 
-    return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input))], np.asarray(label_input)
+    return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input))], [np.asarray(label_input), np.flip(np.asarray(label_input), axis=1)]
 
 
 def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
@@ -150,7 +153,7 @@ def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
         return seq
     elif isCasing:
         for x in range(pad_length - len(seq)):
-            seq.append(np.zeros(8))
+            seq.append(np.zeros(11))
         return seq
     else:
         return np.pad(seq, (0, pad_length - len(seq)), 'constant', constant_values=(0,0))

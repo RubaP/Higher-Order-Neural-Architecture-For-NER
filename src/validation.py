@@ -86,15 +86,11 @@ class Metrics(Callback):
         for i, data in enumerate(dataset):
             tokens, casing, char, labels, pos_tag = data
             input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)), self.pos_tag_index)
-            pred = self.model.predict(input, verbose=False)[0]
+            pred = self.model.predict(input, verbose=False)
+            pred = np.add(np.squeeze(pred[0]), np.flip(np.squeeze(pred[1]), axis=0))
             pred = pred.argmax(axis=-1)  # Predict the classes
-            output = np.squeeze(output)
+            output = np.squeeze(output[0])
             output = np.argmax(output, axis=1)
-    
-            if output.shape[0] == 2 and output[1] == 0:
-                output = np.delete(output, [1])
-                pred = np.delete(pred, [1])
-    
             correctLabels.append(output)
             predLabels.append(pred)                   
         
