@@ -48,6 +48,6 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     predB = crfB(y)
 
     model = Model(inputs=[word_ids, casing_input, pos_input, char_input], outputs=[predF, predB])
-    model.compile(loss=[crfF.loss, crfB.loss], optimizer="adam")
+    model.compile(loss=[crfF.loss, crfB.loss], optimizer=SGD(lr=0.01, clipnorm=5.0))
     model.summary()
     return model

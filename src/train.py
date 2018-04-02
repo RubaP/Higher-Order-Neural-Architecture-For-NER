@@ -60,7 +60,7 @@ idx2Label = {v: k for k, v in label_index.items()}
 
 metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
-epochs = 1
+epochs = 100
 model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric], verbose=2)
 
 #   Performance on test dataset
@@ -68,5 +68,5 @@ predLabels, correctLabels = tag_dataset(test_set)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
 print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))
 
-#predLabels, correctLabels = tag_dataset(validation_set)
-#print_wrong_tags(validation_data, predLabels, idx2Label)
+predLabels, correctLabels = tag_dataset(validation_set)
+print_wrong_tags(validation_data, predLabels, idx2Label)
