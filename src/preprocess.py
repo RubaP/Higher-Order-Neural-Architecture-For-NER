@@ -1,7 +1,11 @@
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
+import re, string
 
+
+def clearup(s, chars):
+    return re.sub('[%s]' % chars, '0', s)
 
 def readfile(filename):
     '''
@@ -19,7 +23,7 @@ def readfile(filename):
                 sentence = []
             continue
         splits = line.split(' ')
-        sentence.append([splits[0], splits[1], splits[-1].replace('\n','')])
+        sentence.append([clearup(splits[0], string.digits), splits[1], splits[-1].replace('\n','')])
 
     if len(sentence) > 0:
         sentences.append(sentence)
