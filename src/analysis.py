@@ -10,5 +10,6 @@ def print_wrong_tags(sentence_info, prediction, idx2Label):
                     predicted = idx2Label[prediction[sentence_index][word_index]]
                     if word_info[3] != predicted:
                         wrong_words +=1
-                        print(wrong_words, " : ", "Word:", word_info[0], "  Original:", word_info[3] +"  Predicted:",
+                        print("SI: [", sentence_index, "] ", wrong_words, " : ", "Word:", word_info[0],
+                              "  Original:", word_info[3] +"  Predicted:",
                               idx2Label[prediction[sentence_index][word_index]])

@@ -13,7 +13,7 @@ def get_model(word_embeddings, char_index, pos_tag_index):
                                     mask_zero=True,
                                     weights=[word_embeddings])(word_ids)
 
-    casing_input = Input(batch_shape=(None, None, 11), dtype='float32')
+    casing_input = Input(batch_shape=(None, None, 14), dtype='float32')
 
     pos_input = Input(batch_shape=(None, None, len(pos_tag_index)), dtype='float32')
 

@@ -57,7 +57,10 @@ def get_casing(word):
     casing.append(1) if word.isalnum() > 0 else casing.append(0)
     casing.append(1) if word.isalpha() > 0 else casing.append(0)
     casing.append(1) if word.find("\'") >= 0 else casing.append(0)
-    casing.append(1) if word == "(" or word == ")" else casing.append(0)
+    casing.append(1) if word.find("\'s") >= 0 else casing.append(0)
+    casing.append(1) if word == "(" else casing.append(0)
+    casing.append(1) if word == ")" else casing.append(0)
+    casing.append(1) if word == "." else casing.append(0)
     casing.append(1) if len(word) == 1 else casing.append(0)
 
     return casing
@@ -157,7 +160,7 @@ def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
         return seq
     elif isCasing:
         for x in range(pad_length - len(seq)):
-            seq.append(np.zeros(11))
+            seq.append(np.zeros(14))
         return seq
     else:
         return np.pad(seq, (0, pad_length - len(seq)), 'constant', constant_values=(0,0))
