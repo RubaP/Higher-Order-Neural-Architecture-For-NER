@@ -1,7 +1,11 @@
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
+import re, string
 
+
+def clearup(s, chars):
+    return re.sub('[%s]' % chars, '0', s)
 
 def readfile(filename):
     '''
@@ -19,7 +23,7 @@ def readfile(filename):
                 sentence = []
             continue
         splits = line.split(' ')
-        sentence.append([splits[0], splits[1], splits[-1].replace('\n','')])
+        sentence.append([clearup(splits[0], string.digits), splits[1], splits[-1].replace('\n','')])
 
     if len(sentence) > 0:
         sentences.append(sentence)
@@ -52,6 +56,9 @@ def get_casing(word):
     casing.append(1) if num_of_digits > 0 else casing.append(0)
     casing.append(1) if word.isalnum() > 0 else casing.append(0)
     casing.append(1) if word.isalpha() > 0 else casing.append(0)
+    casing.append(1) if word.find("\'") >= 0 else casing.append(0)
+    casing.append(1) if word == "(" or word == ")" else casing.append(0)
+    casing.append(1) if len(word) == 1 else casing.append(0)
 
     return casing
 
@@ -97,7 +104,7 @@ def create_matrices(sentences, word_index, label_index, char_index, pos_tag_inde
 def padding(chars):
     padded_chair = []
     for i in chars:
-        padded_chair.append(pad_sequences(i, 52, padding='post'))
+        padded_chair.append(pad_sequences(i, 32, padding='post'))
     return padded_chair
 
 
@@ -150,7 +157,7 @@ def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
         return seq
     elif isCasing:
         for x in range(pad_length - len(seq)):
-            seq.append(np.zeros(8))
+            seq.append(np.zeros(11))
         return seq
     else:
         return np.pad(seq, (0, pad_length - len(seq)), 'constant', constant_values=(0,0))

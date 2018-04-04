@@ -29,7 +29,7 @@ def get_word_embedding(words):
 
 def get_char_index_matrix():
     char_index = {"PADDING": 0, "UNKNOWN": 1}
-    for c in " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|":
+    for c in " 0abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|":
         char_index[c] = len(char_index)
     return char_index
 
