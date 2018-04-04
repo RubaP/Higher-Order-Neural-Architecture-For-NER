@@ -60,8 +60,8 @@ idx2Label = {v: k for k, v in label_index.items()}
 
 metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
-epochs = 7
-model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric], verbose=2)
+epochs = 100
+model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric])
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_set)

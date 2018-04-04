@@ -246,6 +246,7 @@ class ChainCRF(Layer):
                  b_start_constraint=None,
                  b_end_constraint=None,
                  weights=None,
+                 go_backwards=False,
                  **kwargs):
         super(ChainCRF, self).__init__(**kwargs)
         self.init = initializers.get(init)
@@ -257,7 +258,7 @@ class ChainCRF(Layer):
         self.b_end_constraint = constraints.get(b_end_constraint)
 
         self.initial_weights = weights
-
+        self.go_backwards = go_backwards
         self.supports_masking = True
         self.uses_learning_phase = True
         self.input_spec = [InputSpec(ndim=3)]
@@ -310,6 +311,8 @@ class ChainCRF(Layer):
         self.built = True
 
     def call(self, x, mask=None):
+        if self.go_backwards:
+            x = K.reverse(x, 1)
         y_pred = viterbi_decode(x, self.U, self.b_start, self.b_end, mask)
         nb_classes = self.input_spec[0].shape[2]
         y_pred_one_hot = K.one_hot(y_pred, nb_classes)

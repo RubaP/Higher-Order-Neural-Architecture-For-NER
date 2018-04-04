@@ -36,19 +36,16 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     word_representation = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
     x = Dropout(0.5)(word_representation)
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
-    x = Dense(9)(x)
-    crfF = ChainCRF()
-    predF = crfF(x)
+    scores = Dense(9)(x)
 
-    word_representation = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
-    y = K.reverse(word_representation, axes=1)
-    y = LSTM(units=100, return_sequences=True, go_backwards=True)(x)
-    y = Dense(9)(y)
-    crfB = ChainCRF()
-    predB = crfB(y)
+    crfF = ChainCRF()
+    predF = crfF(scores)
+
+    crfB = ChainCRF(go_backwards=True)
+    predB = crfB(scores)
 
     model = Model(inputs=[word_ids, casing_input, pos_input, char_input], outputs=[predF, predB])
-    model.compile(loss=[crfF.loss, crfB.loss], optimizer="adam")
-    #model.compile(loss=[crfF.loss, crfB.loss], optimizer=SGD(lr=0.01, clipnorm=5.0))
+    #model.compile(loss=[crfF.loss, crfB.loss], optimizer="adam")
+    model.compile(loss=[crfF.loss, crfB.loss], optimizer=SGD(lr=0.01, clipnorm=5.0))
     model.summary()
     return model
