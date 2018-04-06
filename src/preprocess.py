@@ -5,7 +5,9 @@ import re, string
 
 
 def clearup(s, chars):
-    return re.sub('[%s]' % chars, '0', s)
+    str = re.sub('[%s]' % chars, '0', s)
+    str = re.sub('-+', '-', str)
+    return str
 
 def readfile(filename):
     '''
@@ -101,10 +103,10 @@ def create_matrices(sentences, word_index, label_index, char_index, pos_tag_inde
     return dataset
 
 
-def padding(chars):
+def padding(chars, length):
     padded_chair = []
     for i in chars:
-        padded_chair.append(pad_sequences(i, 32, padding='post'))
+        padded_chair.append(pad_sequences(i, length, padding='post'))
     return padded_chair
 
 
@@ -140,6 +142,8 @@ def transform(X, max_length_word, pos_tag_index):
     label_input = []
     pos_tag_input = []
 
+    max_length_char = find_max_length_char(X)
+
     for word, case, char, label, pos_tag in X:
         word_input.append(pad_sequence(word, max_length_word))
         case_input.append(pad_sequence(case, max_length_word, False, True))
@@ -147,7 +151,16 @@ def transform(X, max_length_word, pos_tag_index):
         pos_tag_input.append(to_categorical(pad_sequence(pos_tag, max_length_word), num_classes=len(pos_tag_index)))
         char_input.append(pad_sequence(char, max_length_word, True))
 
-    return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input))], [np.asarray(label_input), np.flip(np.asarray(label_input), axis=1)]
+    return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input, max_length_char))], [np.asarray(label_input), np.flip(np.asarray(label_input), axis=1)]
+
+
+def find_max_length_char(X):
+    max_length = 0;
+    for word, case, char, label, pos_tag in X:
+        for ch in char:
+            if len(ch) > max_length:
+                max_length = len(ch)
+    return max_length
 
 
 def pad_sequence(seq, pad_length, isChair = False, isCasing = False):

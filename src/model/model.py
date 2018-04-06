@@ -33,7 +33,7 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     # shape = (batch size, max sentence length, char hidden size)
     char_embeddings = Lambda(lambda x: K.reshape(x, shape=[-1, s[1], 2 * 25]))(char_embeddings)
 
-    word_representation = Concatenate(axis=-1)([words, casing_input, char_embeddings, pos_input])
+    word_representation = Concatenate(axis=-1)([words, char_embeddings, pos_input])
     x = Dropout(0.5)(word_representation)
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
     scores = Dense(9)(x)
