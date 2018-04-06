@@ -51,7 +51,7 @@ train_set = create_matrices(train, word_index,  label_index, char_index, pos_tag
 validation_set = create_matrices(validation, word_index, label_index, char_index, pos_tag_index)
 test_set = create_matrices(test, word_index, label_index, char_index, pos_tag_index)
 
-batch_size =20
+batch_size =10
 model = get_model(wordEmbeddings, char_index, pos_tag_index)
 
 train_steps, train_batches = create_batches(train_set, batch_size, pos_tag_index)
@@ -60,8 +60,8 @@ idx2Label = {v: k for k, v in label_index.items()}
 
 metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
-epochs = 100
-model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric])
+epochs = 80
+model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric], verbose=2)
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_set)

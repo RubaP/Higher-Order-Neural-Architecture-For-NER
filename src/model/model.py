@@ -35,7 +35,7 @@ def get_model(word_embeddings, char_index, pos_tag_index):
 
     word_representation = Concatenate(axis=-1)([words, char_embeddings, pos_input])
     x = Dropout(0.5)(word_representation)
-    x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
+    x = Bidirectional(LSTM(units=100, return_sequences=True, dropout=0.2, recurrent_dropout=0.5))(x)
     scores = Dense(9)(x)
 
     crfF = ChainCRF()
