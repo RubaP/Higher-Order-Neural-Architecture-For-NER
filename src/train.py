@@ -34,13 +34,13 @@ def tag_dataset(dataset):
 #ovalidation = readfile("../data/valid.txt")
 #otest = readfile("../data/test.txt")
 
-with open('../data/train_1.pkl', 'rb') as f:
+with open('../data/train.pkl', 'rb') as f:
     train = pickle.load(f)
 
-with open('../data/valid_1.pkl', 'rb') as f:
+with open('../data/valid.pkl', 'rb') as f:
     validation = pickle.load(f)
 
-with open('../data/test_1.pkl', 'rb') as f:
+with open('../data/test.pkl', 'rb') as f:
     test = pickle.load(f)    
     
 validation_data = validation
