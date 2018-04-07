@@ -2,7 +2,11 @@ import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 import re, string
+from itertools import chain
 
+def flatten(listOfLists):
+    "Flatten one level of nesting"
+    return chain.from_iterable(listOfLists)
 
 def clearup(s, chars):
     return re.sub('[%s]' % chars, '0', s)
@@ -31,16 +35,26 @@ def readfile(filename):
 
 
 def add_chars(sentences):
-    for sentence_index, sentence in enumerate(sentences):
+    for sentence_index, sentence in enumerate(sentences):        
         for word_index, word_info in enumerate(sentence):
+#            print(len(word_info), word_index, word_info)
+            if len(word_info) == 1:
+                word_info = list(flatten(word_info))
+            
+            if len(word_info) != 5:
+                word_info.append('O')
             chars = [c for c in word_info[0]]
-            sentences[sentence_index][word_index] = [word_info[0], chars, word_info[1], word_info[2]]
+            sentences[sentence_index][word_index] = [word_info[0], chars, word_info[1], word_info[2], word_info[3], word_info[4]]
     return sentences
 
 
 def get_casing(word):
     casing = []
-
+    
+    if len(word) == 0:
+        word = '.'
+        print('Hack')
+        
     num_of_digits = 0
     for char in word:
         if char.isdigit():
@@ -66,7 +80,7 @@ def get_casing(word):
     return casing
 
 
-def create_matrices(sentences, word_index, label_index, char_index, pos_tag_index):
+def create_matrices(sentences, word_index, label_index, char_index, pos_tag_index, dep_tag_index):
     unknown_index = word_index['UNKNOWN_TOKEN']
     dataset = []
 
@@ -75,12 +89,18 @@ def create_matrices(sentences, word_index, label_index, char_index, pos_tag_inde
 
     for sentence in sentences:
         word_indices = []
+        head_word_indices = []
         case_indices = []
         char_indices = []
         label_indices = []
-        pos_tag_inices = []
+        pos_tag_indices = []
+        dep_tag_indices = []
 
-        for word, char, pos_tag, label in sentence:
+        for word, char, pos_tag, head_word, dep_tag, label in sentence:
+#            print(dep_tag)
+#            print(pos_tag)
+#            print(dep_tag_index)
+#            print(pos_tag_index)
             word_count += 1
             if word in word_index:
                 word_idx = word_index[word]
@@ -89,17 +109,29 @@ def create_matrices(sentences, word_index, label_index, char_index, pos_tag_inde
             else:
                 word_idx = unknown_index
                 unknown_word_count += 1
+                
+            if head_word in word_index:
+                head_word_idx = word_index[head_word]
+            elif head_word.lower() in word_index:
+                head_word_idx = word_index[head_word.lower()]
+            else:
+                head_word_idx = unknown_index
+                unknown_word_count += 1
+                
             char_idx = []
-            for x in char:
+#            print(char_index)
+            for x in char:                
                 char_idx.append(char_index[x])
             # Get the label and map to int
             word_indices.append(word_idx)
+            head_word_indices.append(head_word_idx)
             case_indices.append(get_casing(word))
             char_indices.append(char_idx)
             label_indices.append(label_index[label])
-            pos_tag_inices.append(pos_tag_index[pos_tag])
+            pos_tag_indices.append(pos_tag_index[pos_tag])
+            dep_tag_indices.append(dep_tag_index[dep_tag])
 
-        dataset.append([word_indices, case_indices, char_indices, label_indices, pos_tag_inices])
+        dataset.append([word_indices, head_word_indices, case_indices, char_indices, label_indices, pos_tag_indices, dep_tag_indices])
 
     return dataset
 
@@ -111,7 +143,7 @@ def padding(chars):
     return padded_chair
 
 
-def create_batches(data, batch_size, pos_tag_index):
+def create_batches(data, batch_size, pos_tag_index, dep_tag_index):
     num_batches_per_epoch = int((len(data) - 1) / batch_size) + 1
 
     def data_generator():
@@ -119,7 +151,7 @@ def create_batches(data, batch_size, pos_tag_index):
         Generates a batch iterator for a dataset.
         """
         def get_length(data):
-            word, case, char, label, pos_tag = data
+            word, head_word, case, char, label, pos_tag, dep_tag = data
             return len(word)
 
         data_size = len(data)
@@ -131,26 +163,30 @@ def create_batches(data, batch_size, pos_tag_index):
                 end_index = min((batch_num + 1) * batch_size, data_size)
                 X = data[start_index: end_index]
                 max_length_word = max(len(max(seq, key=len)) for seq in X)
-                yield transform(X, max(2,max_length_word), pos_tag_index)
+                yield transform(X, max(2,max_length_word), pos_tag_index, dep_tag_index)
 
     return num_batches_per_epoch, data_generator()
 
 
-def transform(X, max_length_word, pos_tag_index):
+def transform(X, max_length_word, pos_tag_index, dep_tag_index):
     word_input = []
+    head_word_input = []
     char_input = []
     case_input = []
     label_input = []
     pos_tag_input = []
+    dep_tag_input = []
 
-    for word, case, char, label, pos_tag in X:
+    for word, head_word, case, char, label, pos_tag, dep_tag in X:
         word_input.append(pad_sequence(word, max_length_word))
-        case_input.append(pad_sequence(case, max_length_word, False, True))
+        head_word_input.append(pad_sequence(head_word, max_length_word))
+        case_input.append(pad_sequence(case, max_length_word, False, True))        
         label_input.append(np.eye(9)[pad_sequence(label, max_length_word)])
         pos_tag_input.append(to_categorical(pad_sequence(pos_tag, max_length_word), num_classes=len(pos_tag_index)))
+        dep_tag_input.append(to_categorical(pad_sequence(dep_tag, max_length_word), num_classes=len(dep_tag_index)))
         char_input.append(pad_sequence(char, max_length_word, True))
 
-    return [np.asarray(word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(padding(char_input))], np.asarray(label_input)
+    return [np.asarray(word_input), np.asarray(head_word_input), np.asarray(case_input), np.asarray(pos_tag_input), np.asarray(dep_tag_input), np.asarray(padding(char_input))], np.asarray(label_input)
 
 
 def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
@@ -169,12 +205,16 @@ def pad_sequence(seq, pad_length, isChair = False, isCasing = False):
 def get_words_and_labels(train, val, test):
     label_set = set()
     pos_tag_set = set()
+    dep_tag_set = set()
     words = {}
+    head_words = {}
 
     for dataset in [train, val, test]:
-        for sentence in dataset:
-            for word, char, POS_tag, label in sentence:
+        for sentence in dataset:            
+            for word, char, POS_tag, head_word, dep_tag, label in sentence:                
                 label_set.add(label)
                 pos_tag_set.add(POS_tag)
+                dep_tag_set.add(dep_tag)
                 words[word.lower()] = True
-    return words, label_set, pos_tag_set
+                head_words[head_word.lower()] = True
+    return words, head_words, label_set, pos_tag_set, dep_tag_set

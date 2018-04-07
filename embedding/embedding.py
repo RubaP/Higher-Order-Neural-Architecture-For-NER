@@ -2,8 +2,8 @@ import numpy as np
 
 
 def get_word_embedding(words):
-    word_index = {}
-    word_embeddings = []
+    word_index = {}    
+    word_embeddings = []    
     embeddings = open("../embedding/glove.6B.100d.txt", encoding="utf-8")
 
     for line in embeddings:
@@ -22,14 +22,13 @@ def get_word_embedding(words):
             vector = np.array([float(num) for num in split[1:]])
             word_embeddings.append(vector)
             word_index[split[0]] = len(word_index)
-
+                
     word_embeddings = np.array(word_embeddings)
     return word_index, word_embeddings
 
-
 def get_char_index_matrix():
     char_index = {"PADDING": 0, "UNKNOWN": 1}
-    for c in " 0abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|":
+    for c in " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|":
         char_index[c] = len(char_index)
     return char_index
 
@@ -45,3 +44,10 @@ def get_pos_index_matrix(POS_tag_set):
     for POS_tag in POS_tag_set:
         POS_tag_index[POS_tag] = len(POS_tag_index)
     return POS_tag_index
+
+def get_dep_index_matrix(dep_tag_set):
+    dep_tag_index = {}
+    for DEP_tag in dep_tag_set:
+        dep_tag_index[DEP_tag] = len(dep_tag_index)
+    
+    return dep_tag_index

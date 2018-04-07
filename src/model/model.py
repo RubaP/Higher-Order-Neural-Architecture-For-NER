@@ -6,16 +6,25 @@ import keras.backend as K
 from keras.optimizers import SGD
 
 
-def get_model(word_embeddings, char_index, pos_tag_index):
+def get_model(word_embeddings, char_index, pos_tag_index, dep_tag_index):
     word_ids = Input(batch_shape=(None, None), dtype='int32')
+    head_word_ids = Input(batch_shape=(None, None), dtype='int32')
+    
     words = Embedding(input_dim=word_embeddings.shape[0],
                                     output_dim=word_embeddings.shape[1],
                                     mask_zero=True,
                                     weights=[word_embeddings])(word_ids)
 
+    head_words = Embedding(input_dim=word_embeddings.shape[0],
+                                    output_dim=word_embeddings.shape[1],
+                                    mask_zero=True,
+                                    weights=[word_embeddings])(head_word_ids)
+    
     casing_input = Input(batch_shape=(None, None, 14), dtype='float32')
 
     pos_input = Input(batch_shape=(None, None, len(pos_tag_index)), dtype='float32')
+    
+    dep_input = Input(batch_shape=(None, None, len(dep_tag_index)), dtype='float32')
 
     # build character based word embedding
     char_input = Input(batch_shape=(None, None, None), dtype='int32')
@@ -32,17 +41,18 @@ def get_model(word_embeddings, char_index, pos_tag_index):
     # shape = (batch size, max sentence length, char hidden size)
     char_embeddings = Lambda(lambda x: K.reshape(x, shape=[-1, s[1], 2 * 25]))(char_embeddings)
 
-    x = Concatenate(axis=-1)([words, char_embeddings])
+    x = Concatenate(axis=-1)([words, head_words, char_embeddings])
     x = Dropout(0.5)(x)
-    x = Concatenate(axis=-1)([x, casing_input, pos_input])
+    x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
+    x = Dense(100)(x)
     x = Bidirectional(LSTM(units=100, return_sequences=True))(x)
     x = Dense(9)(x)
 
     crf = ChainCRF()
     pred = crf(x)
 
-    model = Model(inputs=[word_ids, casing_input, pos_input, char_input], outputs=[pred])
+    model = Model(inputs=[word_ids, head_word_ids, casing_input, pos_input, dep_input, char_input], outputs=[pred])
     #model.compile(loss=crf.loss, optimizer=SGD(lr=0.01, clipnorm=5.0))
-    model.compile(loss=crf.loss, optimizer="adam")
+    model.compile(loss=crf.loss, optimizer="nadam")
     model.summary()
     return model
