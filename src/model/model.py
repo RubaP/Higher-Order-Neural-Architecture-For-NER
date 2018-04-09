@@ -1,10 +1,9 @@
 from keras.models import Model
-from keras.layers import Dense, Embedding, Input, Dropout, LSTM, Bidirectional, Lambda, Add
+from keras.layers import Dense, Embedding, Input, Dropout, LSTM, Bidirectional, Lambda
 from keras.layers.merge import Concatenate
 from src.model.layers import ChainCRF
 import keras.backend as K
 from keras.optimizers import SGD
-import numpy as np
 
 
 def get_model(word_embeddings, char_index, pos_tag_index):
