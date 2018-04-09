@@ -5,5 +5,12 @@
   "batch_size": 10,
   "epochs": 80,
   "training_verbose": 2,
-  "print_wrong_tags": true
+  "print_wrong_tags": true,
+  "char_embedding_dimension": 25,
+  "char_lstm_dim": 25,
+  "word_lstm_dim": 100,
+  "learning_rate": 0.01,
+  "clipnorm": 5.0,
+  "optimizer": "sgd",
+  "word_dropout": 0.5
 }

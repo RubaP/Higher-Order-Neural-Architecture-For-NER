@@ -55,7 +55,7 @@ validation_set = create_matrices(validation, word_index, label_index, char_index
 test_set = create_matrices(test, word_index, label_index, char_index, pos_tag_index)
 
 batch_size = config['batch_size']
-model = get_model(wordEmbeddings, char_index, pos_tag_index)
+model = get_model(wordEmbeddings, char_index, pos_tag_index, config)
 
 train_steps, train_batches = create_batches(train_set, batch_size, pos_tag_index)
 
