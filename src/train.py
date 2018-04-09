@@ -9,7 +9,10 @@ from sklearn import metrics
 from itertools import chain
 from src.validation import compute_f1
 from src.analysis import print_wrong_tags
+import json
 
+with open('../config.json') as json_data_file:
+    config = json.load(json_data_file)
 
 def tag_dataset(dataset):
     correctLabels = []
@@ -31,9 +34,9 @@ def tag_dataset(dataset):
     return predLabels, correctLabels
 
 
-train = readfile("../data/train.txt")
-validation = readfile("../data/valid.txt")
-test = readfile("../data/test.txt")
+train = readfile(config['train_file_path'])
+validation = readfile(config['valid_file_path'])
+test = readfile(config['test_file_path'])
 
 validation_data = validation
 
@@ -51,7 +54,7 @@ train_set = create_matrices(train, word_index,  label_index, char_index, pos_tag
 validation_set = create_matrices(validation, word_index, label_index, char_index, pos_tag_index)
 test_set = create_matrices(test, word_index, label_index, char_index, pos_tag_index)
 
-batch_size =10
+batch_size = config['batch_size']
 model = get_model(wordEmbeddings, char_index, pos_tag_index)
 
 train_steps, train_batches = create_batches(train_set, batch_size, pos_tag_index)
@@ -60,13 +63,15 @@ idx2Label = {v: k for k, v in label_index.items()}
 
 metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
-epochs = 80
-model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric], verbose=2)
+epochs = config['epochs']
+model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric],
+                    verbose=config['training_verbose'])
 
 #   Performance on test dataset
 predLabels, correctLabels = tag_dataset(test_set)
 pre_test, rec_test, f1_test = compute_f1(predLabels, correctLabels, idx2Label)
 print("Test-Data: Prec: %.5f, Rec: %.5f, F1: %.5f" % (pre_test, rec_test, f1_test))
 
-predLabels, correctLabels = tag_dataset(validation_set)
-print_wrong_tags(validation_data, predLabels, idx2Label)
+if config['print_wrong_tags']:
+    predLabels, correctLabels = tag_dataset(validation_set)
+    print_wrong_tags(validation_data, predLabels, idx2Label)

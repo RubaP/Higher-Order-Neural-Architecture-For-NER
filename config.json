@@ -1,0 +1,9 @@
+{
+  "train_file_path": "../data/train.txt",
+  "valid_file_path": "../data/valid.txt",
+  "test_file_path": "../data/test.txt",
+  "batch_size": 10,
+  "epochs": 80,
+  "training_verbose": 2,
+  "print_wrong_tags": true
+}
