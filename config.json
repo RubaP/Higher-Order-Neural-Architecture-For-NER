@@ -6,7 +6,7 @@
   "batch_size": 14,
   "epochs": 80,
   "training_verbose": 2,
-  "print_wrong_tags": true,
+  "print_wrong_tags": false,
   "char_embedding_dimension": 20,
   "char_lstm_dim": 24,
   "word_lstm_dim": 150,
