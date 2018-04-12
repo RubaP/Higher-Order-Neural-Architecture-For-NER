@@ -61,7 +61,7 @@ metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
 epochs = config['epochs']
 
-for loop i in range (0, 3):
+for x in range (0, 3):
     model = get_model(wordEmbeddings, char_index, pos_tag_index, config)
     if config['train_with_validation']:
         model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, verbose=config['training_verbose'])
