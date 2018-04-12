@@ -24,7 +24,7 @@ def get_model(word_embeddings, char_index, pos_tag_index, config):
                                 mask_zero=True
                                 )(char_input)
     s = K.shape(char_embeddings)
-    char_embeddings = Lambda(lambda x: K.reshape(x, shape=(-1, s[-2], 25)))(char_embeddings)
+    char_embeddings = Lambda(lambda x: K.reshape(x, shape=(-1, s[-2], config['char_embedding_dimension'])))(char_embeddings)
 
     fwd_state = LSTM(config['char_lstm_dim'], return_state=True)(char_embeddings)[-2]
     bwd_state = LSTM(config['char_lstm_dim'], return_state=True, go_backwards=True)(char_embeddings)[-2]

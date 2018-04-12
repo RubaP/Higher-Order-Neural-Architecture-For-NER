@@ -1,2 +1,2 @@
 # Introduction
-A keras implementation of higher order neural architecture for Named-Entity-Recognition.
+A keras implementation of Bidirectional LSTM-CRF for Named Entity Recognition

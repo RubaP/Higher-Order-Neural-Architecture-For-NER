@@ -1,5 +1,6 @@
 {
   "train_file_path": "../data/train.txt",
+  "train_extended_file_path": "../data/train_extended.txt",
   "valid_file_path": "../data/valid.txt",
   "test_file_path": "../data/test.txt",
   "batch_size": 14,
@@ -12,5 +13,6 @@
   "learning_rate": 0.01,
   "clipnorm": 5.0,
   "optimizer": "sgd",
-  "word_dropout": 0.3
+  "word_dropout": 0.3,
+  "train_with_validation": false
 }

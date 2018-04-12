@@ -34,7 +34,7 @@ def tag_dataset(dataset):
     return predLabels, correctLabels
 
 
-train = readfile(config['train_file_path'])
+train = readfile(config['train_extended_file_path']) if config['train_with_validation'] else readfile(config['train_file_path'])
 validation = readfile(config['valid_file_path'])
 test = readfile(config['test_file_path'])
 
@@ -64,7 +64,11 @@ idx2Label = {v: k for k, v in label_index.items()}
 metric = Metrics(validation_set, idx2Label, pos_tag_index)
 
 epochs = config['epochs']
-model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric],
+
+if config['train_with_validation']:
+    model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, verbose=config['training_verbose'])
+else:
+    model.fit_generator(generator=train_batches, steps_per_epoch=train_steps, epochs=epochs, callbacks=[metric],
                     verbose=config['training_verbose'])
 
 #   Performance on test dataset
