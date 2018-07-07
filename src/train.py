@@ -26,7 +26,7 @@ def tag_dataset(dataset):
         predX = model.predict(input, verbose=False)
         pred = np.add(np.squeeze(predX[0]), np.flip(np.squeeze(predX[1]), axis=0))
         predF = np.squeeze(predX[0])
-        predB = np.squeeze(predX[1])
+        predB = np.flip(np.squeeze(predX[1]), axis=0)
 
         pred = pred.argmax(axis=-1)  # Predict the classes
         predF = predF.argmax(axis=-1)  # Predict the classes
@@ -39,11 +39,11 @@ def tag_dataset(dataset):
         predLabelsB.append(predB)
         b.update(i)
 
-    print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
+    print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels)), digits=5))
     print(
-        metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabelsF))))
+        metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabelsF)), digits=5))
     print(
-        metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabelsB))))
+        metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabelsB)), digits=5))
     return predLabels, correctLabels
 
 
