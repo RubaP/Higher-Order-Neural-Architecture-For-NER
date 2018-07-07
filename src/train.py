@@ -17,20 +17,33 @@ with open('../config.json') as json_data_file:
 def tag_dataset(dataset):
     correctLabels = []
     predLabels = []
+    predLabelsF = []
+    predLabelsB = []
     b = Progbar(len(dataset))
     for i, data in enumerate(dataset):
         tokens, casing, char, labels, pos_tag = data
         input, output = transform([[tokens, casing, char, labels, pos_tag]], max(2,len(labels)), pos_tag_index)
-        pred = model.predict(input, verbose=False)
-        pred = np.add(np.squeeze(pred[0]), np.flip(np.squeeze(pred[1]), axis=0))
+        predX = model.predict(input, verbose=False)
+        pred = np.add(np.squeeze(predX[0]), np.flip(np.squeeze(predX[1]), axis=0))
+        predF = np.squeeze(predX[0])
+        predB = np.squeeze(predX[1])
+
         pred = pred.argmax(axis=-1)  # Predict the classes
+        predF = predF.argmax(axis=-1)  # Predict the classes
+        predB = predB.argmax(axis=-1)  # Predict the classes
         output = np.squeeze(output[0])
         output = np.argmax(output, axis=1)
         correctLabels.append(output)
         predLabels.append(pred)
+        predLabelsF.append(predF)
+        predLabelsB.append(predB)
         b.update(i)
 
     print(metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabels))))
+    print(
+        metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabelsF))))
+    print(
+        metrics.classification_report(list(chain.from_iterable(correctLabels)), list(chain.from_iterable(predLabelsB))))
     return predLabels, correctLabels
 
 
